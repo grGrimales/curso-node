@@ -10,6 +10,8 @@ export class ProductController {
     constructor() {
     }
 
+    // CRUD: CREATE - READ - UPDATE - DELETE
+
 
     // Create Products
     createProduct = async (req: Request, res: Response) => {
@@ -92,6 +94,7 @@ export class ProductController {
 
             return res.json({
                 ok: true,
+                count: products.length,
                 products
             });
 
@@ -104,6 +107,147 @@ export class ProductController {
             });
         }
 
+    }
+
+    // Delete Products
+    deleteProduct = async (req: Request, res: Response) => {
+
+        try {
+
+            // Obtener el id del producto a eliminar
+            const { id } = req.params;
+
+            // Validar que el id sea un id de mongo valido mediante expresion regular
+            this.validateMongoId(id, res );
+
+
+            // Buscar el producto por id y eliminarlo
+            const product = await Product.findByIdAndDelete(id);
+
+            if (!product) {
+                return res.status(400).json({
+                    ok: false,
+                    message: `Product with id ${id} does not exist`
+                });
+            }
+
+            return res.json({
+                ok: true,
+                message: 'Product deleted successfully'
+            });
+
+        } catch (error) {
+            console.log(error);
+
+            return res.status(500).json({
+                ok: false,
+                message: 'Internal server error'
+            });
+        }
+
+    }
+
+    // Update Products
+    updateProduct = async (req: Request, res: Response) => {
+
+        try {
+
+            // Obtener el id del producto a actualizar
+            const { id } = req.params;
+
+            // Validar que el id sea un id de mongo valido mediante expresion regular
+            this.validateMongoId(id, res );
+
+            // Obtener los datos a actualizar
+            const { name, price, description } = req.body;
+
+            // Validar que el price no este vacio y sea un número
+            if (price && isNaN(price)) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Price must be a number'
+                });
+            }
+
+            // Buscar el producto por id y actualizarlo
+            const data = { name, price, description };
+
+            const product = await Product.findByIdAndUpdate(
+                id, 
+                data,
+                { new: true });
+
+            if (!product) {
+                return res.status(400).json({
+                    ok: false,
+                    message: `Product with id ${id} does not exist`
+                });
+            }
+
+            return res.json({
+                ok: true,
+                message: 'Product updated successfully',
+                product
+            });
+
+        } catch (error) {
+            console.log(error);
+
+            return res.status(500).json({
+                ok: false,
+                message: 'Internal server error'
+            });
+        }
+
+    }
+
+    // Get Product by ID
+    getProductById = async (req: Request, res: Response) => {
+
+        try {
+
+            // Obtener el id del producto
+            const { id } = req.params;
+
+            // Validar que el id sea un id de mongo valido mediante expresion regular
+            this.validateMongoId(id, res );
+
+            // Buscar el producto por id
+            const product = await Product.findById(id);
+            console.log(product);
+
+            if (!product) {
+                return res.status(400).json({
+                    ok: false,
+                    message: `Product with id ${id} does not exist`
+                });
+            }
+
+            return res.json({
+                ok: true,
+                product
+            });
+
+        } catch (error) {
+            console.log(error);
+
+            return res.status(500).json({
+                ok: false,
+                message: 'Internal server error'
+            });
+        }
+
+    }
+
+
+
+    validateMongoId = (id: string, res: Response) => { 
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                ok: false,
+                message: 'id should be a valid mongo id'
+            });
+        }
     }
 
 }
