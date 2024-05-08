@@ -106,7 +106,6 @@ export class ProductController {
                 message: 'Error interno del servidor'
             });
         }
-
     }
 
     // Delete Products
@@ -161,6 +160,22 @@ export class ProductController {
             // Obtener los datos a actualizar
             const { name, price, description } = req.body;
 
+
+            /*
+            if(name) {
+                const productByName = await Product.findOne({ name });
+
+                if (productByName) {
+                    return res.status(400).json({
+                        ok: false,
+                        message: 'Product already exists'
+                    });
+                }
+            }
+            */
+
+
+
             // Validar que el price no este vacio y sea un número
             if (price && isNaN(price)) {
                 return res.status(400).json({
@@ -190,8 +205,15 @@ export class ProductController {
                 product
             });
 
-        } catch (error) {
-            console.log(error);
+        } catch (error: any) {
+     
+            if(error.codeName === 'DuplicateKey') {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Product already exists with that name ' + error.keyValue.name
+                });
+            }
+
 
             return res.status(500).json({
                 ok: false,
