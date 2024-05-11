@@ -1,8 +1,7 @@
 import express from "express";
 import { ProductRoutes } from "./routes/products.routes";
 import { MongoDatabase } from "./data/MongoDatabase";
-
-import mongoose from "mongoose";
+import { UserRoutes } from "./routes/user.routes";
 
 
 
@@ -21,6 +20,7 @@ app.use(express.static("public"))
 
 // Rutas
 app.use("/api" , ProductRoutes.rotues);
+app.use("/api", UserRoutes.rotues);
 
 // Conectar a la base de datos mongo
  MongoDatabase.connect();
