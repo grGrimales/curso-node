@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { User } from "../data/mongo/models/user.models";
 
+import { hashSync, compareSync } from 'bcryptjs';
+import { generateJWT } from "../commons/jwt";
+
+
 
 export class UserController {
 
@@ -10,10 +14,7 @@ export class UserController {
     }
 
 
-
     // REGISTER - LOGIN
-
-
     async register(req: Request, res: Response) {
 
         try {
@@ -48,21 +49,29 @@ export class UserController {
 
             // Crear un nuevo usuario
             const user = new User({ username, email, password });
+
+            // Encriptar la contraseña
+            user.password = hashSync(password, 10);
+
             await user.save();
 
             // Borrar password del user
             const userResponse = {
                 email: user.email,
                 username: user.username,
-                role: user.role
-
+                role: user.role,
+                password: user.password
             }
+
+            const token = await generateJWT(
+                { email: user.email, username: user.username},
+                '1h');
 
             return res.json({
                 ok: true,
                 message: 'register success',
                 user: userResponse,
-                token: 'ABC123'
+                token
             });
 
 
@@ -107,7 +116,7 @@ export class UserController {
         }
 
         // Validar la contraseña
-        if (user.password !== password) {
+        if (!compareSync(password, user.password) ) {
             return res.status(400).json({
                 ok: false,
                 message: 'email or password incorrect #### PASSWORD'
@@ -122,12 +131,16 @@ export class UserController {
             role: user.role
         }
 
+        const token = await generateJWT(
+            { email: user.email, username: user.username},
+            '1h');
+
 
         return res.json({
             ok: true,
             message: 'login success',
             user: userResponse,
-            token: 'ABC123'
+            token
         });
 
     }
