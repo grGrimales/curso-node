@@ -61,7 +61,7 @@ export class ProductController {
             const producto = new Product({
                 name,
                 price,
-                description,    
+                description,   
             });
     
             await producto.save();
