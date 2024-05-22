@@ -24,6 +24,11 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: true
     },
+    user : {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
     // TODO: Agregar usuario que lo creo
 
 

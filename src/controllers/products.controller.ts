@@ -61,8 +61,9 @@ export class ProductController {
             const producto = new Product({
                 name,
                 price,
-                description,   
-            });
+                description,  
+             
+            });    // TODO: USER ID 
     
             await producto.save();
     

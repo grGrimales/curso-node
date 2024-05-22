@@ -42,6 +42,11 @@ export class AuthMiddleware {
                 message: "user not found"
             });
         }
+
+        
+       // Add user to request
+        req.body.user = user;
+
         next();
             
         } catch (error) {
